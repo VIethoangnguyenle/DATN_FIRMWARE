@@ -1,0 +1,4 @@
+{
+    "sketch": "Step_Control.ino",
+    "board": "arduino:avr:uno"
+}

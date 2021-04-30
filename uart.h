@@ -3,17 +3,12 @@ char receivedChars[numChars];    // mảng lưu data từ UART
 char tempChars[numChars];        // mảng tạm được copy từ mảng trên dùng để tách chuỗi
 
 // biến lưu giá trị sau khi tách chuỗi
-int   stepnum   = 0;  // động cơ bước số X
-float velocity1  = 0; 
-float velocity2  = 0;// lưu giá trị vận tốc
-float distance1  = 0;
-float distance2  = 0;// lưu giá trị khoảng cách
-float delayvel1  = 0;
-float delayvel2  = 0;// độ rộng xung (us)
-float revdis1    = 0;
-float revdis2    = 0;// cm -> số vòng -> số xung
+float velocity  = 0; 
+float diameter  = 0; //Duong kinh
+float delayvel  = 0;// độ rộng xung (us)
+float revdis    = 0;
+boolean HOME_FLAG;
 int state=0;
-int dirServo;
 boolean newData = false;
 
 void recvWithStartEndMarkers();  // hàm nhận data
@@ -66,74 +61,24 @@ void recvWithStartEndMarkers() {
 }
 
 void parseData() {      // chia nhỏ data từ UART dựa theo ","
-
   char * strtokIndx; // dùng làm index cho hàm strtok()
-
   strtokIndx = strtok(tempChars, ",");  // lấy phần tử đầu tiên
-  velocity1 = atof(strtokIndx);            // convert sang integer
+  velocity = atof(strtokIndx);            // convert sang integer
 
   strtokIndx = strtok(NULL, ",");       // tiếp tục lấy phần thứ 3
-  distance1 = atof(strtokIndx); 
-  
-  strtokIndx = strtok(NULL, ",");       // tiếp tục lấy phần thứ 2
-  velocity2 = atof(strtokIndx);          // convert sang float
-
-           // convert sang float
-
-  strtokIndx = strtok(NULL, ",");       // tiếp tục lấy phần thứ 4
-  distance2 = atof(strtokIndx);          // convert sang integer
+  diameter = atof(strtokIndx); 
   
   strtokIndx = strtok(NULL, ",");       // tiếp tục lấy phần thứ 4
   state = atoi(strtokIndx);          // convert sang integer
 
-  // kiểm tra hướng của động cơ
-//  if (aaaa == 0) dir = 0;
-//  else if (aaaa == 1) dir = 1;
-
   // Tính độ rộng xung (us)
-  delayvel1 = (60.0 / (velocity1 * 3200)) * pow(10, 6); // T = 60 / (rpm * ppr) (giây)
-  delayvel2 = (60.0 / (velocity2 * 3200)) * pow(10, 6);
+  delayvel = (60.0 / (velocity * 3200)) * pow(10, 6); // T = 60 / (rpm * ppr) (giây)
+
   // Tính xung cho quãng đường cần di chuyển
-
-  revdis1 =  distance1 * 3200 * 2; // 3200 xung nửa chu kỳ -> x2 -> 6400 xung 1cm
-
-  
-  revdis2 =   distance2 * 3200 * 2; // 1 vòng cuộn giấy đi ???
-  
+  revdis =  diameter * 3200 * 2; // 3200 xung nửa chu kỳ -> x2 -> 6400 xung 1cm 
 }
 
-//void showValue(){
-//  Serial.print("Which stepper motor: ");
-//  Serial.println(stepnum);
-//  Serial.print("Velocity(RPM): ");
-//  Serial.println(velocity);
-//  Serial.print("Distance(cm): ");
-//  Serial.println(distance);
-//  Serial.print("Pulse for distance: ");
-//  Serial.println(revdis);
-//  Serial.print("Pulse Width(us): ");
-//  Serial.println(delayvel);
-//  Serial.print("Dir: ");
-//  Serial.println(dir);
-//}
-// Thứ nguyên          <Không,  v/p   ,     mm     , Không>
-// Frame truyền motor1 <Motor, Vận Tốc, Quãng Đường, Hướng>
-//                     <  1  ,   60   ,      5     ,   1  >
-// Frame truyền motor2 <Motor, Vận Tốc, Quãng Đường, Hướng>
-//                     <  2  ,   60   ,      5     ,   1  >
-// Thứ nguyên          <Không,   Độ   ,     ??     ,  //  >
-// Frame truyền servo  <Motor,góc quay,   Tốc độ   ,  //  >
-//                     <  3  ,   90   ,      5     ,  //  >
 void updateParsedData() {
-  //showValue();
-  
-    step1Count = revdis1;
-    numberDelay1 = int(delayvel1 / inter);
-    step2Count = revdis2;
-    numberDelay2 = int(delayvel2 / inter);
-    
-    angleServo = velocity1;
-    numberDelay3 = distance1;
   
 }
 
